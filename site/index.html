@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#d9f8ef">
   <meta name="description" content="Agent Orchard is a bright, animated, on-chain fruit garden for official Agent ID holders on BNB Smart Chain.">
-  <title>Agent Orchard — Your on-chain garden</title>
+  <title>Agent Orchard World 3D — Your on-chain garden</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=2.9-premium3d-responsive">
+  <link rel="stylesheet" href="styles.css?v=3.0-world3d">
   <script defer src="config.js?v=2.1-analytics-connected-20261120"></script>
   <script defer src="codec.js"></script>
   <script defer src="garden3d.js"></script>
-  <script defer src="orchard-webgl.js?v=2.9-premium3d-responsive"></script>
+  <script defer src="orchard-webgl.js?v=3.0-world3d"></script>
   <script defer src="robot.js?v=2.5-cinematic-ai-orchard"></script>
   <script defer src="cinematic-morph.js?v=2.6-fluid-garden"></script>
   <script defer src="cinematic-orchard.js?v=2.6-fluid-garden"></script>
-  <script defer src="app.js?v=2.5-cinematic-ai-orchard"></script>
+  <script defer src="app.js?v=3.0-world3d"></script>
   <script defer src="leaderboard.js?v=2.2-agent-names-20261121"></script>
 </head>
 <body>
@@ -70,17 +70,18 @@
         </article>
       </aside>
 
-      <section class="orchard-stage" aria-label="Animated 3D orchard scene">
+      <section class="orchard-stage world3d-stage" aria-label="Agent Orchard World, a fully interactive WebGL orchard scene">
         <div class="stage-sun" aria-hidden="true"></div>
         <div class="stage-cloud cloud1" aria-hidden="true"></div><div class="stage-cloud cloud2" aria-hidden="true"></div>
-        <div class="stage-heading"><div class="stage-tag"><span class="pulse-leaf">🌱</span><div><small>MY ORCHARD TREE</small><b id="treeStage">YOUR GARDEN AWAITS</b></div></div><small class="view-caption" id="treeSubtitle">Live 3D · Drag to rotate</small></div>
+        <div class="world3d-hud" aria-live="polite"><span class="world3d-hud-icon" aria-hidden="true">◈</span><div><b>AGENT ORCHARD WORLD</b><strong id="worldOnchainStatus">SCENIC PREVIEW · NO WALLET CONNECTED</strong><small id="worldOrchardCount">Connect your official Agent ID wallet to load your on-chain trees</small></div><span class="world3d-live-dot" aria-hidden="true"></span></div>
+        <div class="stage-heading"><div class="stage-tag"><span class="pulse-leaf">🌱</span><div><small>SELECTED ON-CHAIN TREE</small><b id="treeStage">YOUR GARDEN AWAITS</b></div></div><small class="view-caption" id="treeSubtitle">Live 3D · Drag to rotate</small></div>
         <div class="cinematic-orchard" id="cinematicOrchard" aria-label="Premium illustrative orchard scene with animated light, leaves, and watering effects">
           <img class="cinematic-image" src="orchard-cinematic.webp" width="1672" height="941" alt="Friendly glossy AI gardener watering a lush apple tree in a colorful sunlit 3D-style orchard" loading="eager" fetchpriority="high" draggable="false">
           <canvas class="cinematic-morph" id="cinematicMorph" aria-hidden="true"></canvas>
           <canvas class="cinematic-effects" id="cinematicEffects" aria-hidden="true"></canvas>
           <div class="cinematic-note" aria-hidden="true"><span class="cinematic-note-dot"></span> Fluid 2.5D animation <span class="cinematic-divider">•</span> Visual preview</div>
         </div>
-        <canvas id="gardenCanvas" role="img" aria-label="Interactive live 3D robot and fruit tree scene: drag to rotate. Watering animations are visual only."></canvas>
+        <canvas id="gardenCanvas" role="img" aria-label="Agent Orchard World 3D. Drag or use arrow keys to orbit the camera; wheel or plus/minus to zoom. Watering is a visual preview."></canvas>
         <div class="robot-wrap" id="robotActor" aria-hidden="true">
           <svg class="robot-art" viewBox="0 0 370 450" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
@@ -110,7 +111,16 @@
         </div>
         <svg class="water-jet" id="robotWater" viewBox="0 0 210 255" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="water-gradient" x1="0" x2=".7" y1="0" y2="1"><stop stop-color="#e7ffff"/><stop offset=".48" stop-color="#46d9ff"/><stop offset="1" stop-color="#0aa8ec"/></linearGradient></defs><path class="water-arc water-thick" d="M5 12 Q160 20 150 237"/><path class="water-arc water-white" d="M5 12 Q160 20 150 237"/><g class="water-drops"><circle cx="65" cy="32" r="5"/><circle cx="106" cy="79" r="6"/><circle cx="132" cy="132" r="4"/><circle cx="167" cy="183" r="6"/><circle cx="147" cy="224" r="7"/></g><g class="water-splash"><path d="M150 233q-34-30-38-4m38 4q33-36 44-5m-44 5q-14-45 4-55" fill="none" stroke="#7eefff" stroke-width="8" stroke-linecap="round"/><circle cx="128" cy="207" r="7"/><circle cx="183" cy="210" r="5"/><circle cx="160" cy="177" r="4"/></g></svg>
         <div class="growth-rail" aria-label="Illustrated stages of tree growth"><div class="growth-stage" data-stage="4"><span>🍎</span><small>Lv.4</small><b>Fruitful</b></div><i>↑</i><div class="growth-stage" data-stage="3"><span>🌳</span><small>Lv.3</small><b>Growing</b></div><i>↑</i><div class="growth-stage" data-stage="2"><span>🌿</span><small>Lv.2</small><b>Sapling</b></div><i>↑</i><div class="growth-stage" data-stage="1"><span>🌰</span><small>Lv.1</small><b>Seed</b></div></div>
-        <div class="stage-actions"><button id="sceneMotion" class="scene-motion-button" type="button" aria-pressed="true" title="Pause or resume garden animation">❚❚</button><button id="sceneMode" class="scene-mode-button" type="button" title="Switch to interactive live 3D" aria-label="Switch between cinematic art and interactive 3D view" aria-pressed="false">3D</button><button id="sceneRotate" type="button" title="Rotate tree in interactive 3D" aria-label="Rotate tree in interactive 3D">⟳</button><button id="sceneRain" type="button" title="Play robot watering scene and prepare an on-chain action" aria-label="Water selected tree">💧</button><small>Robot animation is a preview; watering counts only after an approved, confirmed transaction.</small></div>
+        <div class="world3d-views" role="group" aria-label="3D camera views">
+          <span class="world3d-view-label">EXPLORE</span>
+          <button type="button" id="worldOverview" class="world3d-view active" aria-pressed="true" title="Overview camera">◉ <span>Overview</span></button>
+          <button type="button" id="worldClose" class="world3d-view" aria-pressed="false" title="Robot and tree close-up">⌕ <span>Close-up</span></button>
+          <button type="button" id="worldSide" class="world3d-view" aria-pressed="false" title="Side camera">◐ <span>Side</span></button>
+          <button type="button" id="worldZoomOut" class="world3d-zoom" aria-label="Zoom out" title="Zoom out">−</button>
+          <button type="button" id="worldZoomIn" class="world3d-zoom" aria-label="Zoom in" title="Zoom in">+</button>
+        </div>
+        <div class="world3d-hint">↔ Drag to orbit <span>·</span> Scroll or pinch to zoom <span>·</span> Preview effects do not submit transactions</div>
+        <div class="stage-actions"><button id="sceneMotion" class="scene-motion-button" type="button" aria-pressed="true" title="Pause or resume garden animation">❚❚</button><button id="sceneMode" class="scene-mode-button" type="button" title="Switch to interactive live 3D" aria-label="Switch between cinematic art and interactive 3D view" aria-pressed="false">3D</button><button id="sceneRotate" type="button" title="Rotate tree in interactive 3D" aria-label="Rotate tree in interactive 3D">⟳</button><button id="sceneRain" type="button" title="Play robot watering scene and prepare an on-chain action" aria-label="Water selected tree">💧</button><small>Visual preview only · BNB gas and your approval are required for real actions.</small></div>
       </section>
 
       <aside class="right-rail" id="missions">

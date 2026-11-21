@@ -328,6 +328,7 @@ If the official Skill does not support this call, or any parameter differs, STOP
       button.addEventListener('click', () => {
         chosenTree = st.trees.indexOf(tree);
         garden.setTree(tree.species, tree.care);
+        displayState();
         if (tree.harvested) return toast('This tree has already been harvested.');
         if (ready) return prepareAction('harvest', [tree.id]);
         prepareAction('tend', [tree.id]);
@@ -345,13 +346,19 @@ If the official Skill does not support this call, or any parameter differs, STOP
     if (st.trees.length) {
       const selected = st.trees[Math.min(chosenTree, st.trees.length - 1)];
       garden.setTree(selected.species, selected.care);
+      garden.setOrchardTrees?.(st.trees,selected.id);
+      setText('worldOnchainStatus','LIVE BNB MAINNET · VERIFIED AGENT ID');
+      setText('worldOrchardCount',`${st.trees.length} on-chain tree${st.trees.length===1?'':'s'} · viewing #${selected.id}`);
       const stage = selected.harvested ? 4 : selected.care === 0 ? 1 : selected.care === 1 ? 2 : selected.care === 2 ? 3 : 4;
       setText('treeStage', selected.harvested ? 'HARVESTED ✓' : ['','SEED · LEVEL 1','SAPLING · LEVEL 2','GROWING · LEVEL 3','FRUITFUL · LEVEL 4'][stage]);
       setText('treeSubtitle', `${SPECIES[selected.species]} #${selected.id} · ${selected.care}/3 care sessions · drag to rotate`);
       updateProgress(selected);
       all('.growth-stage').forEach(el => el.classList.toggle('active', Number(el.dataset.stage) === stage));
     } else {
-      garden.setTree(0, 3);
+      garden.setTree(0, 2);
+      garden.setOrchardTrees?.([],null);
+      setText('worldOnchainStatus',active?'NO PLANTED TREES YET · MAINNET':(garden?.isWebGL3D?'SCENIC PREVIEW · NO WALLET CONNECTED':'CINEMATIC PREVIEW · WEBGL UNAVAILABLE'));
+      setText('worldOrchardCount',active?'Your first tree will appear after a verified planting transaction':'Connect your Agent ID wallet to load your on-chain garden');
       setText('treeStage', 'THE GARDEN AWAITS');
       setText('treeSubtitle', 'Interactive 3D orchard · Verify Agent ID to load your trees');
       updateProgress(null);
@@ -509,15 +516,35 @@ If the official Skill does not support this call, or any parameter differs, STOP
       motionBtn.disabled=true;motionBtn.setAttribute('aria-pressed','false');
       motionBtn.textContent='▶';motionBtn.title='Animation disabled by your reduced-motion setting';
     }
-    byId('sceneMotion')?.addEventListener('click', (e) => {
-      if (!cinematic?.isActive()) cinematic?.showArt();
-      const next = !cinematic.morph?.motion;
-      cinematic.morph?.setMotion(next);
+    byId('sceneMotion')?.addEventListener('click',(e)=>{
       const button=e.currentTarget;
-      button.setAttribute('aria-pressed', String(!!next));
+      const next=button.getAttribute('aria-pressed')!=='true';
+      button.setAttribute('aria-pressed',String(next));
       button.textContent=next?'❚❚':'▶';
-      button.title=next?'Pause garden animation':'Resume garden animation';
+      button.title=next?'Pause scene animation':'Resume scene animation';
+      if(cinematic?.isActive())cinematic?.morph?.setMotion(next);
+      garden.setMotion?.(next);
     });
+    const setView=(mode)=>{
+      if(!garden?.isWebGL3D)return;
+      cinematic?.show3D();garden.setView?.(mode);
+      document.querySelectorAll('.world3d-view').forEach(button=>{
+        const active=button.id==={overview:'worldOverview',close:'worldClose',side:'worldSide'}[mode];
+        button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));
+      });
+    };
+    byId('worldOverview')?.addEventListener('click',()=>setView('overview'));
+    byId('worldClose')?.addEventListener('click',()=>setView('close'));
+    byId('worldSide')?.addEventListener('click',()=>setView('side'));
+    byId('worldZoomIn')?.addEventListener('click',()=>{if(!garden?.isWebGL3D)return;cinematic?.show3D();garden.zoomBy?.(-.12);});
+    byId('worldZoomOut')?.addEventListener('click',()=>{if(!garden?.isWebGL3D)return;cinematic?.show3D();garden.zoomBy?.(.12);});
+    if(garden?.isWebGL3D){
+      cinematic?.show3D();
+    }else{
+      cinematic?.showArt();
+      document.querySelector('.orchard-stage')?.classList.add('world3d-fallback');
+      setText('worldOnchainStatus','CINEMATIC FALLBACK · WEBGL UNAVAILABLE');
+    }
     byId('copyPrompt').addEventListener('click', () => copy(byId('promptBox').value));
     byId('copySkillTask').addEventListener('click', () => copy(skillTaskPrompt()));
     byId('connectedSync').addEventListener('click', async () => {

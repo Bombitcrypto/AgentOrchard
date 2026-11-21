@@ -1,5 +1,5 @@
 /*
- * Agent Orchard 2.9 — rebuilt 3D robot mesh and responsive garden.
+ * Agent Orchard World 3.0 — expanded native WebGL island, responsive orbit camera and live trees.
  * Robot and tree are real lit 3-D meshes with animated joints and foliage.
  * No CDNs, remote models, dependencies, or wallet calls. Visual only.
  * WebGL failure falls back to the previous Canvas2D/SVG scene.
@@ -162,17 +162,52 @@ void main(){
 class OrchardWebGL {
  constructor(canvas,gl){
   this.canvas=canvas;this.gl=gl;this.isWebGL3D=true;this.time=0;this.last=0;this.yaw=-.17;this.zoom=1;
-  this.kind=0;this.phase=3;this.targetPhase=3;this.actionStart=-100;
+  this.kind=0;this.phase=1;this.targetPhase=1;this.actionStart=-100;
+  this.ownedTrees=[];this.selectedTreeId=null;this.zoom=1;this.pitch=.26;
+  this.targetZoom=1;this.targetPitch=.26;this.targetYaw=-.29;this.yaw=-.29;
+  this.motion=true;this.drag=false;this.pointers=new Map();this.pinching=false;
+  this.lastWaterSeq=-100;
   this.reduced=global.matchMedia('(prefers-reduced-motion: reduce)').matches;
   this.drag=false;this.cinematicMode=false;this.frame=this.frame.bind(this);
   this.program=program(gl,vs,fs);gl.useProgram(this.program);
   this.loc={aPosition:gl.getAttribLocation(this.program,'aPosition'),aNormal:gl.getAttribLocation(this.program,'aNormal'),model:gl.getUniformLocation(this.program,'uModel'),vp:gl.getUniformLocation(this.program,'uVP'),color:gl.getUniformLocation(this.program,'uColor'),eye:gl.getUniformLocation(this.program,'uEye'),glow:gl.getUniformLocation(this.program,'uGlow'),gloss:gl.getUniformLocation(this.program,'uGloss'),alpha:gl.getUniformLocation(this.program,'uAlpha')};
   this.mesh={sphere:sphere(gl,24,36),panel:roundedPanel(gl),cylinder:cylinder(gl,30),frustum:frustum(gl),leaf:leaf(gl),torus:torus(gl)};
   gl.clearColor(0,0,0,0);gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-  this.canvas.addEventListener('pointerdown',e=>{this.drag=true;this.pointerX=e.clientX;this.canvas.setPointerCapture(e.pointerId);});
-  this.canvas.addEventListener('pointermove',e=>{if(this.drag){this.yaw=clamp(this.yaw+(e.clientX-this.pointerX)*.008,-1.5,1.5);this.pointerX=e.clientX;}});
-  this.canvas.addEventListener('pointerup',()=>{this.drag=false;});
-  this.canvas.addEventListener('pointercancel',()=>{this.drag=false;});
+  this.canvas.tabIndex=0;
+  this.canvas.style.touchAction='none';
+  this.canvas.addEventListener('pointerdown',e=>{
+    if(e.button!==0 && e.pointerType!=='touch')return;
+    this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    this.drag=true;this.pointerX=e.clientX;this.pointerY=e.clientY;
+    try{this.canvas.setPointerCapture(e.pointerId);}catch(_){/* capture may be unavailable */}
+    if(this.pointers.size===2)this.pinching=true;
+  });
+  this.canvas.addEventListener('pointermove',e=>{
+    if(!this.pointers.has(e.pointerId))return;
+    const prev=this.pointers.get(e.pointerId),other=[...this.pointers.entries()].find(([id])=>id!==e.pointerId);
+    if(other){
+      const oldDist=Math.hypot(prev.x-other[1].x,prev.y-other[1].y);
+      const newDist=Math.hypot(e.clientX-other[1].x,e.clientY-other[1].y);
+      if(oldDist>20)this.targetZoom=clamp(this.targetZoom*oldDist/Math.max(20,newDist),.66,1.72);
+    }else if(this.drag&&!this.pinching){
+      this.targetYaw=clamp(this.targetYaw+(e.clientX-prev.x)*.0065,-1.48,1.48);
+      this.targetPitch=clamp(this.targetPitch+(e.clientY-prev.y)*.0035,.11,.66);
+    }
+    this.pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  });
+  const release=e=>{this.pointers.delete(e.pointerId);this.drag=this.pointers.size>0;if(!this.drag)this.pinching=false;};
+  this.canvas.addEventListener('pointerup',release);
+  this.canvas.addEventListener('pointercancel',release);
+  this.canvas.addEventListener('wheel',e=>{
+    if(this.cinematicMode)return;
+    e.preventDefault();this.zoomBy(e.deltaY>0?.09:-.09);
+  },{passive:false});
+  this.canvas.addEventListener('keydown',e=>{
+    if(e.key==='ArrowLeft'||e.key==='a'){this.targetYaw=clamp(this.targetYaw-.16,-1.48,1.48);e.preventDefault();}
+    if(e.key==='ArrowRight'||e.key==='d'){this.targetYaw=clamp(this.targetYaw+.16,-1.48,1.48);e.preventDefault();}
+    if(e.key==='+'||e.key==='='){this.zoomBy(-.1);e.preventDefault();}
+    if(e.key==='-'||e.key==='_'){this.zoomBy(.1);e.preventDefault();}
+  });
   this.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();this.contextLost=true;});
   this.canvas.addEventListener('webglcontextrestored',()=>{global.location.reload();});
   this.colors={};
@@ -182,7 +217,7 @@ class OrchardWebGL {
  }
  size(){
   const rect=this.canvas.getBoundingClientRect();this.w=Math.max(1,rect.width);this.h=Math.max(1,rect.height);
-  const d=Math.min(global.devicePixelRatio||1,this.w<600?1.5:1.8),w=Math.floor(this.w*d),h=Math.floor(this.h*d);
+  const d=Math.min(global.devicePixelRatio||1,this.w<600?1.25:1.5),w=Math.floor(this.w*d),h=Math.floor(this.h*d);
   if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;this.gl.viewport(0,0,w,h);}
  }
  color(c){return this.colors[c]||(this.colors[c]=toRGB(c));}
@@ -225,17 +260,107 @@ class OrchardWebGL {
   this.draw('leaf',transform(parent,T(x,y,z),Ry(rotY),Rz(rotZ),S(scale,scale,scale)),color);
  }
  drawGround(){
-  this.ball(I(),.1,-.30,0,3.45,.28,1.72,'#46733d');
-  this.ball(I(),.1,-.20,0,3.35,.19,1.60,'#80b85c');
-  this.ball(I(),.1,-.14,0,3.26,.16,1.52,'#93ca68');
-  this.draw('torus',transform(T(.1,-.035,0),S(3.0,.9,1.42)),'#f6dc7a',.28);
-  for(let i=0;i<(this.w<600?24:38);i++){
-    const a=rand(i*15)*TAU,r=Math.sqrt(rand(i*34))*2.9,x=.1+Math.cos(a)*r,z=Math.sin(a)*r*.45;
-    this.ball(I(),x,-.02,z,.03,.04,.036,i%4===0?'#fff8dc':'#5f9a43');
-    if(i%5===0){this.petal(I(),x,.065,z,.20,a,.78,'#5c9b49');this.petal(I(),x+.05,.04,z,.16,a+1,-.8,'#9cca63');}
+  // Floating island: layered soil, meadow, raised planting beds, stepping-stone path.
+  const root=I(),t=this.motion?this.time:0;
+  this.ball(root,.06,-.50,0,4.15,.53,2.26,'#63513b');
+  this.ball(root,.05,-.35,0,4.07,.38,2.22,'#a08052');
+  this.ball(root,.05,-.21,0,4.00,.26,2.15,'#658d4b');
+  this.ball(root,.05,-.12,0,3.98,.18,2.12,'#84bd62');
+  this.ball(root,.03,-.076,0,3.84,.10,1.99,'#a9d582');
+  this.draw('torus',transform(T(.06,-.076,0),S(3.85,.75,1.99)),'#e7d08a');
+  // A soft, curved stepping-stone walk from SproutBot to the central tree.
+  for(let i=0;i<15;i++){
+    const f=i/14,x=-2.90+f*3.55,z=.85+.45*Math.sin(Math.PI*f);
+    this.ball(root,x,-.015,z,.17,.035,.11,i%3===0?'#fff2d5':'#d9d7b9');
+    this.ball(root,x+.025,.012,z+.015,.10,.014,.055,'#f7f3df');
+  }
+  // Separate earth ring for the selected on-chain tree.
+  this.ball(root,1.04,-.035,-.08,.82,.095,.75,'#806845');
+  this.ball(root,1.04,.014,-.08,.76,.07,.70,'#6c9250');
+  this.draw('torus',transform(T(1.04,.035,-.08),S(.79,.54,.70)),'#e6bf6c');
+  // Edge stones and clumps of animated grass; deterministic and noninteractive.
+  const deco=this.w<620?32:58;
+  for(let i=0;i<deco;i++){
+    const a=rand(i*19+11)*TAU,r=Math.sqrt(rand(i*37+9));
+    const x=.04+Math.cos(a)*r*3.64,z=Math.sin(a)*r*1.83;
+    if(x>.38&&x<2.0&&Math.abs(z)<.72)continue;
+    this.ball(root,x,-.004,z,.055,.038,.05,i%7===0?'#fff0dc':i%2===0?'#6fa04f':'#92bb5c');
+    if(i%2===0){
+      const breeze=this.reduced||!this.motion?0:Math.sin(t*1.6+i)*.10;
+      this.petal(root,x,.085,z,.21,a+breeze,.92,'#4e9c55');
+      this.petal(root,x+.08,.080,z,.17,a+1.1+breeze,-1.2,'#92cd6f');
+    }
+    if(i%9===0){
+      this.rod(root,[x,.01,z],[x,.19,z],.014,'#5c9458');
+      this.ball(root,x,.20,z,.053,.048,.050,i%18===0?'#ffe68f':'#ffb9aa');
+    }
+  }
+ }
+ drawWorldProps(){
+  const root=I(),t=this.motion?this.time:0;
+  // Low timber rail around the far side of the island: fixed decorations, not game objects.
+  for(let k=0;k<15;k++){
+    const x=-3.12+k*.43,z=-1.45+.26*Math.pow(x/3.4,2);
+    if(k>=8&&k<=10)continue;
+    this.tapRod(root,[x,-.05,z],[x,.39,z],.053,.044,'#b08758');
+    this.ball(root,x,.41,z,.066,.056,.064,'#e6bf7e');
+    if(k<14&&!(k>=7&&k<=10))this.rod(root,[x,.25,z],[x+.39,.25,z+.01],.031,'#bb945e');
+  }
+  // Little greenhouse, fence and hanging windchime away from gameplay tree.
+  const house=transform(T(-2.66,.03,-.92),Ry(.22));
+  this.panel(house,0,.24,0,.40,.26,.29,'#f7e5bd');
+  this.panel(house,0,.50,0,.48,.10,.35,'#b16b43');
+  this.panel(house,0,.25,.30,.14,.19,.025,'#277b88');
+  this.panel(house,-.25,.27,.16,.065,.13,.022,'#fff0d2');
+  this.ball(house,.26,.46,.10,.075,.075,.075,'#ffe69c',.32);
+  // Four fruit crates as a small noninteractable world landmark.
+  const crate=transform(T(2.73,.01,1.22),Ry(-.25));
+  this.panel(crate,0,.16,0,.35,.18,.28,'#a6764f');
+  this.panel(crate,0,.31,0,.35,.025,.28,'#dca66e');
+  for(let j=0;j<4;j++){
+    const x=(j%2-.5)*.29,z=(Math.floor(j/2)-.5)*.21;
+    this.ball(crate,x,.38,z,.10,.10,.10,j%2?'#db4e3e':'#f4ad3c');
+  }
+  // Lantern posts with glowing bulbs framing the walk.
+  for(const [x,z] of [[-2.2,1.52],[.45,1.52]]){
+    this.tapRod(root,[x,.02,z],[x,.75,z],.043,.033,'#745638');
+    this.panel(root,x,.79,z,.18,.19,.14,'#f8dfb2');
+    this.panel(root,x,.96,z,.23,.042,.20,'#a56c45');
+    this.ball(root,x,.79,z+.13,.057,.062,.037,'#fff4a8',.48);
+  }
+  // Floating pollen and micro motes provide depth in world space.
+  if(!this.reduced&&this.motion)for(let i=0;i<15;i++){
+    const x=(rand(i*9+2)-.5)*6.7,z=(rand(i*27+3)-.5)*2.9;
+    const y=.55+rand(i*17+4)*2.2+Math.sin(t*.9+i)*.10;
+    this.ball(root,x,y,z,.018,.019,.018,i%2?'#fff4be':'#d9fff4',.25);
+  }
+ }
+ drawMiniTree(tree,i){
+  // Only supplied by verified BNB Mainnet getTrees(). Decorative objects above
+  // are not represented as owned on-chain trees.
+  const spots=[[2.65,.05,-.82],[.05,.05,-1.27],[3.10,.05,.06],[-.38,.05,-1.1]];
+  const [x,y,z]=spots[i%spots.length];
+  const care=Math.max(0,Math.min(3,Number(tree.care)||0));
+  const scale=.32+.09*care;
+  const wind=this.reduced||!this.motion?0:Math.sin(this.time*.7+i*2)*.016;
+  const mat=transform(T(x,y,z),Rz(wind),S(scale,scale,scale));
+  this.ball(mat,0,.09,0,.28,.12,.28,'#82613b');
+  this.tapRod(mat,[0,.03,0],[0,1.38,0],.19,.07,'#886044');
+  this.tapRod(mat,[0,1.03,0],[.56,1.58,.06],.09,.025,'#967452');
+  for(const [j,dx,dz] of [[0,0,0],[1,.42,.08],[2,-.42,-.07]]){
+    this.ball(mat,dx,1.74+(j===0?.24:0),dz,.46,.40,.43,['#4c944b','#6fb956','#82c960'][j]);
+    for(let k=0;k<13;k++){
+      const a=TAU*rand((i+1)*31+j*17+k),r=.30+.13*rand(k+i*14);
+      this.petal(mat,dx+Math.cos(a)*r,1.75+(j===0?.24:0)+(rand(k*13+j)-.5)*.49,dz+Math.sin(a)*r,.17,a,rand(k*9)*TAU,'#98d576');
+    }
+  }
+  if(care>=3&&!tree.harvested){
+    const fruitColors=['#e64e43','#f3a333','#f0c84b'][Math.max(0,Math.min(2,Number(tree.species)||0))];
+    for(let j=0;j<6;j++){const a=TAU*j/6;this.ball(mat,.49*Math.cos(a),1.75+.22*Math.sin(a),.44*Math.sin(a),.085,.092,.085,fruitColors);}
   }
  }
  drawTree(){
+  // Selected tree remains the only hero; secondary verified trees use drawMiniTree.
   const t=this.time,wind=this.reduced?0:Math.sin(t*.63)*.015;
   const growth=clamp(.22+.78*this.phase/3,.22,1);
   const base=transform(T(1.0,.04,-.05),Rz(wind),S(growth,growth,growth));
@@ -270,7 +395,7 @@ class OrchardWebGL {
   for(let i=0;i<crowns.length;i++){
    const [x,y,z,r]=crowns[i];this.ball(base,x,y,z,r*.76,r*.51,r*.66,i%3===0?'#246c37':i%3===1?'#34803a':'#2f7837');
   }
-  const count=this.w<600?160:290;
+  const count=this.w<600?90:190;
   for(let i=0;i<count;i++){
    const k=i%crowns.length,[cx,cy,cz,r]=crowns[k];
    const az=TAU*rand(i*29+14),phi=Math.acos(2*rand(i*37+3)-1),rr=.65+.38*rand(i*17+7);
@@ -431,39 +556,56 @@ class OrchardWebGL {
   }
  }
  setCinematic(on){this.cinematicMode=!!on;}
- waterTree(){ /* Single visual cycle: repeated splash calls must not restart the walking animation. */ if(!this.reduced&&(this.time-this.actionStart>6.5))this.actionStart=this.time; }
+ waterTree(){if(!this.reduced&&this.motion&&this.time-this.actionStart>6.5)this.actionStart=this.time;}
  playWatering(){this.waterTree();}
  startWatering(){this.playWatering();}
- stopWatering(){ /* Animated timeline ends naturally. */ }
+ stopWatering(){}
  setTree(kind,care=3){
   this.kind=clamp(Number(kind)||0,0,2);
   this.targetPhase=care===0?1:care===1?2.3:care===2?2.78:3;
  }
- rotate(){this.yaw+=.45;}
+ setOrchardTrees(trees,selectedId){
+  this.selectedTreeId=selectedId==null?null:Number(selectedId);
+  this.ownedTrees=Array.isArray(trees)?trees.filter(t=>t && Number.isInteger(t.id)).slice(0,5).map(t=>({id:t.id,care:t.care,species:t.species,harvested:!!t.harvested})):[];
+ }
+ rotate(){this.targetYaw=clamp(this.targetYaw+.38,-1.48,1.48);}
+ zoomBy(amount){this.targetZoom=clamp(this.targetZoom+amount,.66,1.72);}
+ setView(view){
+  if(view==='close'){this.targetYaw=-.22;this.targetPitch=.17;this.targetZoom=.70;}
+  else if(view==='side'){this.targetYaw=.86;this.targetPitch=.28;this.targetZoom=1.12;}
+  else {this.targetYaw=-.29;this.targetPitch=.26;this.targetZoom=1;}
+ }
+ resetCamera(){this.setView('overview');}
+ setMotion(on){this.motion=!!on;}
  frame(stamp){
   if(this.contextLost)return;
   if(global.document.hidden){this.last=stamp;return requestAnimationFrame(this.frame);}
-  if(this.last&&stamp-this.last<(this.w<650?32:16))return requestAnimationFrame(this.frame);
+  if(this.last&&stamp-this.last<(this.w<800?32:24))return requestAnimationFrame(this.frame);
   const dt=this.last?clamp((stamp-this.last)/1000,0,.07):.016;this.last=stamp;
-  if(!this.reduced)this.time+=dt;
+  if(!this.reduced&&this.motion)this.time+=dt;
   this.phase=mix(this.phase,this.targetPhase,Math.min(1,dt*3));
-  if(!this.drag&&!this.reduced)this.yaw+=dt*.026;
+  if(!this.drag&&!this.reduced&&this.motion)this.targetYaw=clamp(this.targetYaw+dt*.010,-1.48,1.48);
+  const damp=Math.min(1,dt*6);
+  this.yaw=mix(this.yaw,this.targetYaw,damp);this.pitch=mix(this.pitch,this.targetPitch,damp);this.zoom=mix(this.zoom,this.targetZoom,damp);
   if(!this.cinematicMode)this.render();
   requestAnimationFrame(this.frame);
  }
  render(){
   const gl=this.gl;gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   gl.useProgram(this.program);
-  const aspect=this.w/this.h;
-  const far=aspect<.9;
-  const eye=[Math.sin(this.yaw)*(far?7.5:6.85),3.05,Math.cos(this.yaw)*(far?7.5:6.85)+(far?1.1:1.05)];
-  const vp=mult(perspective(far?Math.PI/3.5:Math.PI/5.25,aspect,.1,80),lookAt(eye,[0,1.57,0]));
+  const aspect=Math.max(.2,this.w/this.h),narrow=aspect<.95;
+  const radius=(narrow?9.4:8.05)*this.zoom;
+  const eye=[Math.sin(this.yaw)*radius*Math.cos(this.pitch),1.15+radius*Math.sin(this.pitch),Math.cos(this.yaw)*radius*Math.cos(this.pitch)];
+  const target=[0,1.20,-.02];
+  const vp=mult(perspective(narrow?Math.PI/3.1:Math.PI/5.3,aspect,.1,90),lookAt(eye,target));
   gl.uniformMatrix4fv(this.loc.vp,false,vp);
   gl.uniform3fv(this.loc.eye,eye);
-  this.drawGround();
-  this.drawTree();
-  this.drawRobot();
-  this.drawSkyEffects();
+  this.drawGround();this.drawWorldProps();
+  for(let i=0;i<this.ownedTrees.length;i++){
+    const tree=this.ownedTrees[i];if(tree.id===this.selectedTreeId)continue;
+    this.drawMiniTree(tree,i);
+  }
+  this.drawTree();this.drawRobot();
  }
  destroy(){this.resizeObserver.disconnect();}
 }

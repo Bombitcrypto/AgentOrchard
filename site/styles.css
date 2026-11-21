@@ -216,3 +216,86 @@
 /* When the header uses 2+ rows, keeping all rows sticky obscures the garden.
    Let it scroll out instead of covering interactive content. */
 @media(max-width:1690px){.topbar{position:relative;top:auto}html{scroll-padding-top:24px}}
+
+/* ============================================================
+   AGENT ORCHARD WORLD 3D v3.0 — responsive game composition
+   ============================================================ */
+:root{--world-ink:#134e42;--world-line:rgba(201,244,222,.92)}
+.game-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;gap:18px;align-items:start}
+.game-grid .orchard-stage{grid-column:1/-1;grid-row:1;min-width:0;width:100%;min-height:670px;height:670px;border-radius:33px;border:2px solid #eaffdf;background:linear-gradient(145deg,#b8f5ed,#ecffe7);box-shadow:0 26px 70px #20795624,inset 0 0 60px #fbfff6b0}
+.game-grid .left-rail{grid-column:1;grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:16px;min-width:0}
+.game-grid .right-rail{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:16px;min-width:0}
+.game-grid .left-rail>*,.game-grid .right-rail>*{min-width:0;width:100%}
+.world3d-stage{isolation:isolate}
+.world3d-stage:before{background:linear-gradient(180deg,rgba(180,249,246,.15),rgba(218,255,210,.05)),url('landscape.svg') center center/cover no-repeat;opacity:.78}
+.world3d-stage:after{z-index:3;height:22%;opacity:.62;pointer-events:none;background:linear-gradient(transparent,#c6ffc133)}
+.world3d-stage #gardenCanvas{z-index:2;display:block;width:100%;height:100%;touch-action:none;outline:0;cursor:grab}
+.world3d-stage #gardenCanvas:active{cursor:grabbing}
+.world3d-stage #gardenCanvas:focus-visible{outline:3px solid #1fbf92;outline-offset:-7px}
+.world3d-stage .stage-heading{top:16px;left:50%;z-index:7;max-width:34%;text-align:center}
+.world3d-stage .stage-tag{padding:8px 15px;background:rgba(12,89,66,.83);box-shadow:0 8px 26px #095e5147;border-radius:19px;white-space:normal;backdrop-filter:blur(14px)}
+.world3d-stage .stage-tag b{font-size:14px;letter-spacing:.025em;line-height:1.2}
+.world3d-stage .stage-tag small{font-size:9px;letter-spacing:.14em}
+.world3d-stage .view-caption{font-size:11px;font-weight:800;background:rgba(255,255,240,.74);padding:5px 10px}
+.world3d-hud{position:absolute;top:18px;left:18px;z-index:8;display:flex;align-items:flex-start;gap:12px;max-width:300px;padding:12px 14px;border:1px solid #fffad7;border-radius:18px;background:linear-gradient(145deg,rgba(250,255,244,.94),rgba(223,255,233,.91));box-shadow:0 12px 32px #17634828;backdrop-filter:blur(15px);color:#245f48}
+.world3d-hud-icon{width:37px;height:37px;display:grid;place-items:center;flex-shrink:0;border-radius:12px;color:#f8e79f;background:linear-gradient(135deg,#087959,#19b68c);font-size:22px}
+.world3d-hud div{min-width:0}
+.world3d-hud b{font-size:12px;letter-spacing:.12em;color:#136b50;display:block}
+.world3d-hud strong{display:block;margin-top:3px;color:#0d4535;font-size:11px}
+.world3d-hud small{font-size:10px;line-height:1.4;color:#498876;display:block}
+.world3d-live-dot{width:8px;height:8px;border-radius:50%;background:#13bd7b;margin-left:auto;margin-top:3px;flex-shrink:0;box-shadow:0 0 0 4px #c6fbe3}
+.world3d-views{position:absolute;z-index:12;left:16px;bottom:106px;display:flex;align-items:center;gap:6px;max-width:calc(100% - 32px);padding:6px 8px;border-radius:19px;border:1px solid #d3f9e7;background:rgba(239,255,246,.88);box-shadow:0 11px 31px #174f4429;backdrop-filter:blur(14px)}
+.world3d-view-label{padding:0 9px;font-size:10px;color:#2f896d;letter-spacing:.12em;font-weight:1000}
+.world3d-view,.world3d-zoom{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:34px;min-height:34px;white-space:nowrap;border:1px solid transparent;color:#176f54;background:transparent;border-radius:12px;padding:7px 12px;font-weight:900;font-size:12px;cursor:pointer;transition:background .25s ease,transform .25s ease}
+.world3d-view:hover,.world3d-zoom:hover{background:#d1f9e2;transform:translateY(-2px)}
+.world3d-view.active{background:#127d61;color:#fff;box-shadow:0 5px 11px #0d705034}
+.world3d-zoom{font-size:21px;padding:2px 9px;background:#dcfbea;border-color:#c3f0df}
+.world3d-hint{position:absolute;z-index:7;right:18px;bottom:121px;max-width:420px;text-align:right;font-size:10px;font-weight:900;color:#387960;text-shadow:0 1px 5px #fff,0 1px #fff}
+.world3d-hint span{opacity:.5}
+.world3d-stage .growth-rail{right:17px;top:22%;background:rgba(233,255,240,.82);border:1px solid #f7ffed;box-shadow:0 10px 22px #236e4f27}
+.world3d-stage .stage-actions{z-index:13;left:16px;right:16px;bottom:13px;display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 11px;flex-wrap:wrap;background:rgba(249,255,248,.89);border:1px solid #f4ffe8;border-radius:20px;box-shadow:0 13px 32px #1e5f432f;backdrop-filter:blur(16px)}
+.world3d-stage .stage-actions button{min-width:45px;width:auto;min-height:42px;height:42px;padding:0 11px;border-radius:12px;font-size:19px;background:#e9fff1;box-shadow:none;border:1px solid #b6e8cf}
+.world3d-stage .stage-actions .scene-mode-button{min-width:58px}
+.world3d-stage .stage-actions small{position:static;order:initial;display:inline;flex:1 1 190px;width:auto;max-width:380px;text-align:left;font-size:10px;line-height:1.35;background:transparent;color:#397a64;border:0;padding:2px 6px}
+.world3d-stage.cinematic-mode .world3d-views,.world3d-stage.cinematic-mode .world3d-hint{opacity:.5}
+@media(max-width:1400px){
+ .world3d-stage .stage-heading{max-width:44%;top:100px}
+ .world3d-hint{bottom:161px;right:16px}
+ .world3d-views{bottom:132px}
+ .game-grid .orchard-stage{height:630px;min-height:630px}
+ .game-grid .left-rail,.game-grid .right-rail{grid-template-columns:1fr}
+}
+@media(max-width:1050px){
+ .game-grid{grid-template-columns:1fr}
+ .game-grid .orchard-stage{grid-column:1;grid-row:1;height:610px;min-height:610px}
+ .game-grid .left-rail{grid-column:1;grid-row:2;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .game-grid .right-rail{grid-column:1;grid-row:3;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .world3d-hint{display:none}
+ .world3d-stage .stage-heading{top:17px;max-width:40%}
+}
+@media(max-width:720px){
+ .game-grid .orchard-stage{height:580px;min-height:580px;border-radius:24px}
+ .game-grid .left-rail,.game-grid .right-rail{grid-template-columns:1fr}
+ .world3d-hud{top:11px;left:10px;right:10px;max-width:none;padding:9px 11px;gap:8px}
+ .world3d-hud-icon{width:32px;height:32px;font-size:18px}
+ .world3d-hud b{font-size:10px}.world3d-hud strong{font-size:10px}.world3d-hud small{font-size:9px}
+ .world3d-stage .stage-heading{top:95px;max-width:82%;left:50%}
+ .world3d-stage .stage-tag{padding:6px 10px}
+ .world3d-stage .stage-tag small{font-size:8px}.world3d-stage .stage-tag b{font-size:12px}
+ .world3d-stage .view-caption{font-size:9px}
+ .world3d-stage .growth-rail{width:59px;right:7px;top:34%;padding:5px 3px}
+ .world3d-views{left:8px;right:8px;bottom:115px;max-width:none;gap:3px;justify-content:space-between;padding:5px 6px}
+ .world3d-view-label{display:none}
+ .world3d-view,.world3d-zoom{min-width:30px;min-height:34px;padding:6px 8px;font-size:11px}
+ .world3d-zoom{font-size:18px}
+ .world3d-stage .stage-actions{left:8px;right:8px;bottom:8px;gap:6px;padding:7px 8px;border-radius:14px}
+ .world3d-stage .stage-actions button{height:35px;min-height:35px;min-width:35px;font-size:15px;padding:0 9px}
+ .world3d-stage .stage-actions small{order:10;flex:0 0 100%;max-width:100%;width:100%;text-align:center;font-size:9px}
+}
+@media(max-width:380px){
+ .world3d-view span{display:none}.world3d-view{font-size:17px}
+ .world3d-stage .growth-rail{display:none}
+}
+@media(prefers-reduced-motion:reduce){.world3d-view,.world3d-zoom{transition:none}}
+
+.world3d-stage.world3d-fallback .world3d-views,.world3d-stage.world3d-fallback .world3d-hint{display:none!important}
