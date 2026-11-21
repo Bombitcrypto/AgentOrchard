@@ -32,6 +32,7 @@
   let toastTimer = null;
   let stateRequest = 0;
   let robot;
+  let cinematic;
   let lastGlobal = null;
 
   function toast(message, error = false) {
@@ -352,7 +353,7 @@ If the official Skill does not support this call, or any parameter differs, STOP
     } else {
       garden.setTree(0, 3);
       setText('treeStage', 'THE GARDEN AWAITS');
-      setText('treeSubtitle', '3D illustration preview · Verify Agent ID to load your trees');
+      setText('treeSubtitle', 'Interactive 3D orchard · Verify Agent ID to load your trees');
       updateProgress(null);
       all('.growth-stage').forEach(el => el.classList.remove('active'));
     }
@@ -478,6 +479,7 @@ If the official Skill does not support this call, or any parameter differs, STOP
 
   function initialize() {
     garden = new window.Garden3D(byId('gardenCanvas'));
+    cinematic = new window.OrchardCinematic(document.querySelector('.orchard-stage'), garden);
     robot = new window.OrchardRobot(byId('robotActor'), byId('robotWater'), garden);
     byId('promptBox').value = setupPrompt();
     byId('demoAlert').replaceChildren();
@@ -500,7 +502,22 @@ If the official Skill does not support this call, or any parameter differs, STOP
     byId('missionCheckin').addEventListener('click', () => prepareAction('checkIn'));
     byId('heroWater').addEventListener('click', waterSelected);
     byId('sceneRain').addEventListener('click', waterSelected);
-    byId('sceneRotate').addEventListener('click', () => garden.rotate());
+    byId('sceneRotate').addEventListener('click', () => { if (cinematic?.isActive()) cinematic.show3D(); garden.rotate(); });
+    byId('sceneMode').addEventListener('click', () => cinematic?.toggle());
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const motionBtn=byId('sceneMotion');
+      motionBtn.disabled=true;motionBtn.setAttribute('aria-pressed','false');
+      motionBtn.textContent='▶';motionBtn.title='Animation disabled by your reduced-motion setting';
+    }
+    byId('sceneMotion')?.addEventListener('click', (e) => {
+      if (!cinematic?.isActive()) cinematic?.showArt();
+      const next = !cinematic.morph?.motion;
+      cinematic.morph?.setMotion(next);
+      const button=e.currentTarget;
+      button.setAttribute('aria-pressed', String(!!next));
+      button.textContent=next?'❚❚':'▶';
+      button.title=next?'Pause garden animation':'Resume garden animation';
+    });
     byId('copyPrompt').addEventListener('click', () => copy(byId('promptBox').value));
     byId('copySkillTask').addEventListener('click', () => copy(skillTaskPrompt()));
     byId('connectedSync').addEventListener('click', async () => {

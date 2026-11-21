@@ -7,12 +7,15 @@
   <meta name="description" content="Agent Orchard is a bright, animated, on-chain fruit garden for official Agent ID holders on BNB Smart Chain.">
   <title>Agent Orchard — Your on-chain garden</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=2.2-agent-names-20261121">
+  <link rel="stylesheet" href="styles.css?v=2.9-premium3d-responsive">
   <script defer src="config.js?v=2.1-analytics-connected-20261120"></script>
   <script defer src="codec.js"></script>
   <script defer src="garden3d.js"></script>
-  <script defer src="robot.js"></script>
-  <script defer src="app.js"></script>
+  <script defer src="orchard-webgl.js?v=2.9-premium3d-responsive"></script>
+  <script defer src="robot.js?v=2.5-cinematic-ai-orchard"></script>
+  <script defer src="cinematic-morph.js?v=2.6-fluid-garden"></script>
+  <script defer src="cinematic-orchard.js?v=2.6-fluid-garden"></script>
+  <script defer src="app.js?v=2.5-cinematic-ai-orchard"></script>
   <script defer src="leaderboard.js?v=2.2-agent-names-20261121"></script>
 </head>
 <body>
@@ -27,7 +30,11 @@
       <a href="#badges" class="nav" data-tab="badges"><span>⭐</span> NFT Badges</a>
       <a href="#leaderboard" class="nav" data-tab="community"><span>🏆</span> Leaderboard</a>
     </nav>
-    <button class="wallet-pill" id="connectBtn" type="button"><span class="wallet-avatar">🤖</span><span><strong>Agentic Wallet</strong><small id="walletText">Connect with Binance</small></span><span class="wallet-chevron">⌄</span></button>
+    <div class="topbar-actions" aria-label="Project actions">
+      <a class="social-x-button" href="https://x.com/AgentOrchard" target="_blank" rel="noopener noreferrer" aria-label="Follow Agent Orchard on X" title="Official Agent Orchard X: @AgentOrchard"><span class="social-x-icon" aria-hidden="true">𝕏</span><span class="social-x-label">Follow on X</span></a>
+      <a class="agent-id-cta" href="https://web3.binance.com/vi/agent-id/signalx?ref=SIGNALX&src=user_share" target="_blank" rel="noopener noreferrer" aria-label="Register an Agent ID with SignalX referral"><span class="agent-id-cta-icon" aria-hidden="true">✨</span><span><strong>No Agent ID yet?</strong><small>Register via SignalX</small></span></a>
+      <button class="wallet-pill" id="connectBtn" type="button"><span class="wallet-avatar">🤖</span><span><strong>Agentic Wallet</strong><small id="walletText">Connect with Binance</small></span><span class="wallet-chevron">⌄</span></button>
+    </div>
   </header>
 
   <main class="app-shell">
@@ -66,8 +73,14 @@
       <section class="orchard-stage" aria-label="Animated 3D orchard scene">
         <div class="stage-sun" aria-hidden="true"></div>
         <div class="stage-cloud cloud1" aria-hidden="true"></div><div class="stage-cloud cloud2" aria-hidden="true"></div>
-        <div class="stage-heading"><div class="stage-tag"><span class="pulse-leaf">🌱</span><div><small>MY ORCHARD TREE</small><b id="treeStage">YOUR GARDEN AWAITS</b></div></div><small class="view-caption" id="treeSubtitle">3D preview · Drag to rotate</small></div>
-        <canvas id="gardenCanvas" role="img" aria-label="Interactive procedural 3D fruit tree: drag to rotate. Robot animations are visual only."></canvas>
+        <div class="stage-heading"><div class="stage-tag"><span class="pulse-leaf">🌱</span><div><small>MY ORCHARD TREE</small><b id="treeStage">YOUR GARDEN AWAITS</b></div></div><small class="view-caption" id="treeSubtitle">Live 3D · Drag to rotate</small></div>
+        <div class="cinematic-orchard" id="cinematicOrchard" aria-label="Premium illustrative orchard scene with animated light, leaves, and watering effects">
+          <img class="cinematic-image" src="orchard-cinematic.webp" width="1672" height="941" alt="Friendly glossy AI gardener watering a lush apple tree in a colorful sunlit 3D-style orchard" loading="eager" fetchpriority="high" draggable="false">
+          <canvas class="cinematic-morph" id="cinematicMorph" aria-hidden="true"></canvas>
+          <canvas class="cinematic-effects" id="cinematicEffects" aria-hidden="true"></canvas>
+          <div class="cinematic-note" aria-hidden="true"><span class="cinematic-note-dot"></span> Fluid 2.5D animation <span class="cinematic-divider">•</span> Visual preview</div>
+        </div>
+        <canvas id="gardenCanvas" role="img" aria-label="Interactive live 3D robot and fruit tree scene: drag to rotate. Watering animations are visual only."></canvas>
         <div class="robot-wrap" id="robotActor" aria-hidden="true">
           <svg class="robot-art" viewBox="0 0 370 450" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <defs>
@@ -97,7 +110,7 @@
         </div>
         <svg class="water-jet" id="robotWater" viewBox="0 0 210 255" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="water-gradient" x1="0" x2=".7" y1="0" y2="1"><stop stop-color="#e7ffff"/><stop offset=".48" stop-color="#46d9ff"/><stop offset="1" stop-color="#0aa8ec"/></linearGradient></defs><path class="water-arc water-thick" d="M5 12 Q160 20 150 237"/><path class="water-arc water-white" d="M5 12 Q160 20 150 237"/><g class="water-drops"><circle cx="65" cy="32" r="5"/><circle cx="106" cy="79" r="6"/><circle cx="132" cy="132" r="4"/><circle cx="167" cy="183" r="6"/><circle cx="147" cy="224" r="7"/></g><g class="water-splash"><path d="M150 233q-34-30-38-4m38 4q33-36 44-5m-44 5q-14-45 4-55" fill="none" stroke="#7eefff" stroke-width="8" stroke-linecap="round"/><circle cx="128" cy="207" r="7"/><circle cx="183" cy="210" r="5"/><circle cx="160" cy="177" r="4"/></g></svg>
         <div class="growth-rail" aria-label="Illustrated stages of tree growth"><div class="growth-stage" data-stage="4"><span>🍎</span><small>Lv.4</small><b>Fruitful</b></div><i>↑</i><div class="growth-stage" data-stage="3"><span>🌳</span><small>Lv.3</small><b>Growing</b></div><i>↑</i><div class="growth-stage" data-stage="2"><span>🌿</span><small>Lv.2</small><b>Sapling</b></div><i>↑</i><div class="growth-stage" data-stage="1"><span>🌰</span><small>Lv.1</small><b>Seed</b></div></div>
-        <div class="stage-actions"><button id="sceneRotate" type="button" title="Rotate tree" aria-label="Rotate tree">⟳</button><button id="sceneRain" type="button" title="Play robot watering scene and prepare an on-chain action" aria-label="Water selected tree">💧</button><small>Robot animation is a preview; watering counts only after an approved, confirmed transaction.</small></div>
+        <div class="stage-actions"><button id="sceneMotion" class="scene-motion-button" type="button" aria-pressed="true" title="Pause or resume garden animation">❚❚</button><button id="sceneMode" class="scene-mode-button" type="button" title="Switch to interactive live 3D" aria-label="Switch between cinematic art and interactive 3D view" aria-pressed="false">3D</button><button id="sceneRotate" type="button" title="Rotate tree in interactive 3D" aria-label="Rotate tree in interactive 3D">⟳</button><button id="sceneRain" type="button" title="Play robot watering scene and prepare an on-chain action" aria-label="Water selected tree">💧</button><small>Robot animation is a preview; watering counts only after an approved, confirmed transaction.</small></div>
       </section>
 
       <aside class="right-rail" id="missions">
@@ -162,7 +175,7 @@
     <section class="glass-card badge-collection" id="badges"><div class="section-heading"><div><span class="kicker">PROOF OF CONSISTENCY</span><h2>⭐ Soulbound Streak NFT Badges</h2><p>Build an active streak and mint an achievement. NFT mints cost BNB gas.</p></div><span class="tag">3 TIERS</span></div><div class="badge-grid"><article class="badge-tile" data-tier="1"><div class="badge-art bronze">🌱<small>3 DAYS</small></div><div><h3>First Roots</h3><p>3-day active streak</p><button class="mint-btn" data-mint="1">Unlock at 3 days ↗</button></div></article><article class="badge-tile" data-tier="2"><div class="badge-art silver">🌳<small>7 DAYS</small></div><div><h3>Steady Grower</h3><p>7-day active streak</p><button class="mint-btn" data-mint="2">Unlock at 7 days ↗</button></div></article><article class="badge-tile" data-tier="3"><div class="badge-art gold-art">🏆<small>14 DAYS</small></div><div><h3>Orchard Legend</h3><p>14-day active streak</p><button class="mint-btn" data-mint="3">Unlock at 14 days ↗</button></div></article></div></section>
     <section class="glass-card mainnet-console" aria-label="Verify mainnet transaction"><div class="console-copy"><div><span class="kicker">BNB MAINNET · CHAIN 56</span><h2>🔎 Mainnet Transaction Explorer</h2><p>Copy an action prompt into the official Binance Agentic Wallet. After separately approving the transaction, paste the hash below to verify it.</p><p id="syncStatus" class="sync-status" role="status">Enter a public Agent ID address to load real blockchain state.</p></div><div class="console-buttons"><button id="openWalletFromConsole" type="button" class="btn btn-outline">Verify Agent ID ↗</button><button id="walletPromptAgain" type="button" class="btn btn-outline">Wallet setup ↗</button></div></div><div class="receipt-console"><label for="txHashInput">Verify transaction hash</label><div class="receipt-input"><input id="txHashInput" placeholder="0x… transaction hash" spellcheck="false" autocomplete="off"><button id="verifyTxBtn" type="button">Verify TX ↗</button></div><p id="txResult" aria-live="polite">A copied prompt is not a completed transaction. Only confirmed BNB Chain receipts count.</p><small id="globalStats">Global counters are read directly from the deployed contract.</small></div></section>
     <section class="how-strip" id="how"><div><span>🌱</span><strong>1. Verify Agent ID</strong><small>Official wallet flow only</small></div><div><span>🗓️</span><strong>2. Check in daily</strong><small>One per UTC day</small></div><div><span>🤖</span><strong>3. Grow your trees</strong><small>On-chain care and harvest</small></div><div><span>🏅</span><strong>4. Mint achievements</strong><small>3 / 7 / 14-day streak</small></div></section>
-    <footer><span>🌳 Agent Orchard · BNB Smart Chain Mainnet · Independent, unaudited community project</span><span>On-chain actions require explicit wallet confirmation and BNB network gas. No financial rewards promised.</span></footer>
+    <footer><span>🌳 Agent Orchard · BNB Smart Chain Mainnet · Independent, unaudited community project · <a href="https://x.com/AgentOrchard" target="_blank" rel="noopener noreferrer">Follow @AgentOrchard on X ↗</a></span><span>On-chain actions require explicit wallet confirmation and BNB network gas. No financial rewards promised.</span></footer>
   </main>
 
   <div id="toast" role="status" aria-live="polite"></div>
