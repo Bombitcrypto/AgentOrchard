@@ -1,6 +1,6 @@
 # Agent Orchard — Official Hackathon Submission Draft
 
-> **STATUS: draft, not yet submitted.** Replace `[PUBLIC_GITHUB_REPO_URL]`, add independently verified BscScan evidence, and update real metrics before final submission. The current public site and on-chain endpoints are included for review, but no organizer acceptance is claimed.
+> **STATUS: draft, not yet submitted.** Add independently verified BscScan evidence, a public demo video, and updated real metrics before final submission. The current public site and on-chain endpoints are included for review, but no organizer acceptance is claimed.
 
 ## Form fields (copy/paste)
 **Project name:** Agent Orchard
@@ -11,7 +11,7 @@
 
 **Agent skill:** https://agentorchard.pages.dev/skill.md
 
-**GitHub (public repository):** [PUBLIC_GITHUB_REPO_URL]
+**GitHub (public repository):** https://github.com/Bombitcrypto/AgentOrchard
 
 **BNB Smart Chain Mainnet contract:** 0x185E900b5986362f8D8eaC4c4294AbA11D62a997
 
@@ -59,7 +59,7 @@ Agent Orchard is an independent community project, **not an official Binance app
 
 ## Demonstrable evidence — attach after validation
 - Verified on-chain source code: [attach dated screenshot + verified BscScan URL]
-- Open-source repo: [insert repo URL]
+- Open-source repo: https://github.com/Bombitcrypto/AgentOrchard
 - Demo video: [insert URL]
 - Successful user tx hashes, recorded within hackathon period: [add 3–5 representative hashes]
 - Agent ID name resolution: [attach screenshot of `.ai` name and address]
