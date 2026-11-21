@@ -1,0 +1,24 @@
+# Copy to wrangler.toml locally; production config is deliberately git-ignored.
+name = "agentorchard-analytics"
+main = "src.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+ORCHARD_CONTRACT = "0x185E900b5986362f8D8eaC4c4294AbA11D62a997"
+ALLOWED_ORIGIN = "https://agentorchard.pages.dev"
+# Replace with actual deployment block from a verified BSC transaction receipt.
+START_BLOCK = "0"
+BLOCK_STEP = "1000"
+MAX_CHUNKS = "12"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "agentorchard-analytics"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+# Secrets: wrangler secret put RPC_URL; VISITOR_SALT; SYNC_TOKEN
+# Never include API credentials or private keys in repository files.

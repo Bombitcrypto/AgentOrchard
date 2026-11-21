@@ -1,0 +1,9 @@
+{
+  "name": "Agent Orchard",
+  "description": "On-chain fruit-tree garden for Agent ID wallets on BNB Mainnet",
+  "documentation": "https://agentorchard.pages.dev/skill.md",
+  "website": "https://agentorchard.pages.dev/",
+  "chainId": 56,
+  "contract": "0x185E900b5986362f8D8eaC4c4294AbA11D62a997",
+  "officialBinance": false
+}

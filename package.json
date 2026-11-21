@@ -1,0 +1,33 @@
+{
+  "name": "agent-orchard",
+  "private": true,
+  "version": "2.3.0",
+  "description": "Agent Orchard public-source release — BSC Mainnet Agent ID orchard and Worker v2.3 on-chain names",
+  "scripts": {
+    "doctor": "node scripts/preflight.cjs",
+    "precompile": "node scripts/preflight.cjs",
+    "compile": "hardhat compile",
+    "deploy:mainnet": "hardhat run scripts/deploy-mainnet.cjs --network bscMainnet",
+    "verify:mainnet": "hardhat verify --network bscMainnet",
+    "test": "node --test test/codec.test.cjs && hardhat test test/AgentOrchard.hardhat.cjs",
+    "test:codec": "node --test test/codec.test.cjs",
+    "test:contracts": "hardhat test test/AgentOrchard.hardhat.cjs",
+    "build:site": "node scripts/build-site.cjs",
+    "verify:deployment": "node scripts/verify-deployment.cjs",
+    "find:block": "node scripts/find-deploy-block.cjs",
+    "test:analytics": "node --test test/analytics-worker.test.mjs",
+    "test:agent-names": "node analytics-worker/test-agent-id-onchain.mjs"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.0",
+    "@nomicfoundation/hardhat-verify": "2.1.4"
+  },
+  "dependencies": {
+    "ethers": "^6.13.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

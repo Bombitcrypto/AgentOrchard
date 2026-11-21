@@ -1,0 +1,16 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  Content-Security-Policy: default-src 'self'; script-src 'self'; connect-src 'self' https://bsc-dataseed.bnbchain.org https://*.workers.dev https://*.pages.dev; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; base-uri 'none'; object-src 'none'; form-action 'self'; frame-ancestors 'none'
+
+/skill.md
+  Content-Type: text/markdown; charset=utf-8
+  X-Content-Type-Options: nosniff
+
+/skill.json
+  Content-Type: application/json; charset=utf-8
+
+/.well-known/agent.json
+  Content-Type: application/json; charset=utf-8

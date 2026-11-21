@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#d9f8ef">
+  <meta name="description" content="Agent Orchard is a bright, animated, on-chain fruit garden for official Agent ID holders on BNB Smart Chain.">
+  <title>Agent Orchard — Your on-chain garden</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css?v=2.2-agent-names-20261121">
+  <script defer src="config.js?v=2.1-analytics-connected-20261120"></script>
+  <script defer src="codec.js"></script>
+  <script defer src="garden3d.js"></script>
+  <script defer src="robot.js"></script>
+  <script defer src="app.js"></script>
+  <script defer src="leaderboard.js?v=2.2-agent-names-20261121"></script>
+</head>
+<body>
+  <div class="world" aria-hidden="true"><span class="float-leaf leaf-a">🍃</span><span class="float-leaf leaf-b">🍃</span><span class="float-leaf leaf-c">✦</span><span class="float-leaf leaf-d">🌼</span></div>
+  <header class="topbar">
+    <a class="brand" href="#garden" aria-label="Agent Orchard home"><span class="brand-tree">🌳</span><span class="brand-name">Agent <b>Orchard</b><small>ON-CHAIN ORCHARD GAME</small></span></a>
+    <span class="network-pill"><img src="bnb-chain-mark.svg" alt="" width="19" height="19"><span>BNB Chain <strong>Mainnet</strong></span><span class="network-dot"></span></span>
+    <nav class="navigation" aria-label="Main navigation">
+      <a href="#garden" class="nav active" data-tab="garden"><span>🏠</span> Home</a>
+      <a href="#trees" class="nav" data-tab="trees"><span>🌳</span> My Orchard</a>
+      <a href="#missions" class="nav" data-tab="missions"><span>🎯</span> Missions</a>
+      <a href="#badges" class="nav" data-tab="badges"><span>⭐</span> NFT Badges</a>
+      <a href="#leaderboard" class="nav" data-tab="community"><span>🏆</span> Leaderboard</a>
+    </nav>
+    <button class="wallet-pill" id="connectBtn" type="button"><span class="wallet-avatar">🤖</span><span><strong>Agentic Wallet</strong><small id="walletText">Connect with Binance</small></span><span class="wallet-chevron">⌄</span></button>
+  </header>
+
+  <main class="app-shell">
+    <div id="demoAlert" class="network-banner" role="status"><b>BNB MAINNET 56</b> · Your own wallet approves every on-chain transaction. Network gas is paid in BNB.</div>
+    <section class="welcome-bar" aria-label="Orchard overview">
+      <div class="welcome-copy"><p class="welcome-kicker">👋 Welcome to the garden</p><h1>Grow something <span>amazing!</span></h1><p>Daily on-chain check-ins, a little care, and fruit trees that grow with your Agent ID.</p></div>
+      <div class="resources" aria-label="Your verified on-chain resources">
+        <div class="resource"><span class="res-symbol drop">💧</span><div><small>Water</small><strong id="waterValue">—</strong></div></div>
+        <span class="res-divider"></span>
+        <div class="resource"><span class="res-symbol sun">☀️</span><div><small>Sunshine</small><strong id="sunValue">—</strong></div></div>
+        <span class="res-divider"></span>
+        <div class="resource"><span class="res-symbol seed">🌰</span><div><small>Seeds</small><strong id="seedValue">—</strong></div></div>
+        <button class="resource-refresh" type="button" id="syncBtn" title="Refresh on-chain state" aria-label="Refresh on-chain resources">↻</button>
+      </div>
+    </section>
+
+    <section id="garden" class="game-grid" aria-label="Interactive orchard">
+      <aside class="left-rail">
+        <article class="glass-card checkin-card">
+          <div class="card-title"><span>🗓️</span><h2>Daily Check-in</h2><span class="info-icon" title="One check-in per UTC day. All transactions require BNB gas.">ⓘ</span></div>
+          <p class="card-sub">Keep your streak alive to unlock your harvest badges.</p>
+          <div class="checkin-calendar" id="checkinDays" aria-label="7-day streak progress">
+            <div class="day-tile"><b>Day 1</b><span>🌱</span></div><div class="day-tile"><b>Day 2</b><span>🌞</span></div><div class="day-tile"><b>Day 3</b><span>🎁</span></div><div class="day-tile"><b>Day 4</b><span>🌿</span></div><div class="day-tile"><b>Day 5</b><span>🌼</span></div><div class="day-tile"><b>Day 6</b><span>💦</span></div><div class="day-tile"><b>Day 7</b><span>🏆</span></div>
+          </div>
+          <button class="btn btn-gold checkin-btn" id="heroCheckin" type="button">🎁 Daily Check-in <span>↗</span></button>
+          <small class="card-footnote">⏰ Resets every day at 00:00 UTC · BNB gas applies</small>
+        </article>
+        <article class="glass-card streak-card">
+          <div class="card-title"><span>🔥</span><h2>Daily Streak</h2><span class="streak-flame">LIVE</span></div>
+          <div class="streak-summary"><div class="streak-count"><strong id="streakValue">—</strong><span>days</span></div><div class="next-reward"><span>🎁</span><div><small>Next badge</small><b id="nextReward">3-day streak</b></div></div></div>
+          <div class="streak-track" id="streakTrack" aria-hidden="true"><span>🌱</span><i></i><span>3</span><i></i><span>7</span><i></i><span>14</span><i></i><span>🏆</span></div>
+          <p class="streak-hint" id="streakHint">Verify your Agent ID address to see your streak.</p>
+        </article>
+      </aside>
+
+      <section class="orchard-stage" aria-label="Animated 3D orchard scene">
+        <div class="stage-sun" aria-hidden="true"></div>
+        <div class="stage-cloud cloud1" aria-hidden="true"></div><div class="stage-cloud cloud2" aria-hidden="true"></div>
+        <div class="stage-heading"><div class="stage-tag"><span class="pulse-leaf">🌱</span><div><small>MY ORCHARD TREE</small><b id="treeStage">YOUR GARDEN AWAITS</b></div></div><small class="view-caption" id="treeSubtitle">3D preview · Drag to rotate</small></div>
+        <canvas id="gardenCanvas" role="img" aria-label="Interactive procedural 3D fruit tree: drag to rotate. Robot animations are visual only."></canvas>
+        <div class="robot-wrap" id="robotActor" aria-hidden="true">
+          <svg class="robot-art" viewBox="0 0 370 450" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="rb-white" x1=".05" x2=".95" y1="0" y2="1"><stop stop-color="#ffffff"/><stop offset=".6" stop-color="#e6f1f5"/><stop offset="1" stop-color="#a1c4d0"/></linearGradient>
+              <linearGradient id="rb-teal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#94ffed"/><stop offset=".55" stop-color="#17c9bd"/><stop offset="1" stop-color="#087a91"/></linearGradient>
+              <radialGradient id="rb-visor" cx=".38" cy=".3" r=".82"><stop stop-color="#38647b"/><stop offset=".5" stop-color="#112b42"/><stop offset="1" stop-color="#061727"/></radialGradient>
+              <linearGradient id="rb-yellow" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ffefb3"/><stop offset=".52" stop-color="#efb950"/><stop offset="1" stop-color="#c88827"/></linearGradient>
+              <filter id="rb-shadow" x="-.3" y="-.3" width="1.6" height="1.6"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#145b56" flood-opacity=".27"/></filter>
+              <filter id="rb-glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <ellipse cx="181" cy="428" rx="133" ry="16" fill="#247b47" opacity=".19"/>
+            <g class="robot-leg robot-leg-back" style="transform-origin:145px 310px">
+              <circle cx="144" cy="314" r="23" fill="#96b2c3" stroke="#efffff" stroke-width="8"/><path d="M133 328 L104 377 Q102 391 119 396 L147 398 169 347Z" fill="url(#rb-white)" stroke="#7294a7" stroke-width="5"/><path d="M112 388q-16 8-18 21h80q5-15-14-21" fill="#345a69" stroke="#d7fbf7" stroke-width="5"/><path d="M112 394h52" stroke="#16d8ce" stroke-width="5"/>
+            </g>
+            <g class="robot-leg robot-leg-front" style="transform-origin:228px 313px">
+              <circle cx="230" cy="315" r="23" fill="#9dbbc9" stroke="#f5ffff" stroke-width="8"/><path d="M213 331 L218 383 Q225 399 247 391 L267 379 247 330Z" fill="url(#rb-white)" stroke="#7698a6" stroke-width="5"/><path d="M224 387q-21 6-21 19h82q0-17-25-22" fill="#345c6c" stroke="#d8ffff" stroke-width="5"/><path d="M218 393h55" stroke="#10ddd7" stroke-width="5"/>
+            </g>
+            <g class="robot-arm robot-arm-back" style="transform-origin:122px 251px"><path d="M124 240 Q84 236 70 286 L97 305 147 264Z" fill="url(#rb-white)" stroke="#7099a8" stroke-width="5"/><circle cx="77" cy="294" r="23" fill="#d7f3f2" stroke="#699eb0" stroke-width="5"/><circle cx="77" cy="294" r="9" fill="url(#rb-teal)"/></g>
+            <g class="robot-body" filter="url(#rb-shadow)"><path d="M125 248Q119 215 151 212H225Q255 217 256 249L245 329Q189 365 123 330Z" fill="url(#rb-white)" stroke="#6e99a9" stroke-width="6"/><path d="M154 254q28 20 73-1v52q-36 19-71-1Z" fill="#c4e4e7" stroke="#78a3ad" stroke-width="3"/><circle cx="191" cy="277" r="27" fill="#1c606e" stroke="#a8f9ed" stroke-width="7"/><path d="M185 267l-6 13h12l-6 12 17-19h-13l5-6" fill="#e5fff1"/><path d="M115 244q27-19 71-17l46 9q-60 39-119 14Z" fill="#2abb83"/><path d="M126 246q-8 35-23 54 30 7 43-32Z" fill="#46c986"/></g>
+            <g class="robot-arm robot-arm-front" style="transform-origin:249px 249px"><path d="M246 242 Q277 232 295 270 L286 302 247 279Z" fill="url(#rb-white)" stroke="#7399ae" stroke-width="5"/><circle cx="289" cy="290" r="20" fill="#e8f7f7" stroke="#74a8b4" stroke-width="5"/><circle cx="290" cy="290" r="8" fill="url(#rb-teal)"/><path d="M291 291l12 10" stroke="#f4fefe" stroke-width="13" stroke-linecap="round"/></g>
+            <g class="robot-head" style="transform-origin:187px 181px" filter="url(#rb-shadow)">
+              <rect x="73" y="115" width="220" height="131" rx="67" fill="url(#rb-white)" stroke="#7ab2bc" stroke-width="6"/><ellipse cx="187" cy="172" rx="96" ry="60" fill="url(#rb-visor)" stroke="#d4fcfa" stroke-width="4"/><path d="M117 139q72-36 140 0" stroke="#89e5ee" stroke-opacity=".6" stroke-width="5" fill="none"/><path d="M125 166q13-19 25 0M219 166q13-19 25 0" stroke="#71fff2" stroke-width="9" stroke-linecap="round" fill="none" filter="url(#rb-glow)"/><path d="M172 194q17 15 35 0" stroke="#71fff2" stroke-width="7" stroke-linecap="round" fill="none"/><rect x="66" y="155" width="24" height="47" rx="12" fill="#b5f2ec" stroke="#4d9eac" stroke-width="5"/><rect x="284" y="155" width="24" height="47" rx="12" fill="#b5f2ec" stroke="#4d9eac" stroke-width="5"/><circle cx="77" cy="178" r="7" fill="#0ec9c3"/><circle cx="296" cy="178" r="7" fill="#0ec9c3"/><path d="M181 114v-20" stroke="#c4e8df" stroke-width="8"/><circle cx="181" cy="89" r="10" fill="#26d8be" stroke="#fff" stroke-width="3"/>
+              <g class="robot-hat"><ellipse cx="183" cy="123" rx="126" ry="24" fill="url(#rb-yellow)" stroke="#c18b33" stroke-width="4"/><path d="M119 117Q125 47 183 53Q237 48 249 118Z" fill="url(#rb-yellow)" stroke="#cb9232" stroke-width="4"/><path d="M124 108q60 15 121 0" stroke="#40b774" stroke-width="14"/><path d="M188 105q-17-28 5-31 12 9-5 31" fill="#3eae6a"/></g>
+            </g>
+            <g class="watering-can" style="transform-origin:284px 292px"><path d="M264 286q-7-16 12-20h46q12 0 9 14l-7 61q-23 13-50 0Z" fill="url(#rb-teal)" stroke="#4f8998" stroke-width="6"/><path d="M264 287q-23 0-20 23t25 5" fill="none" stroke="#80b8be" stroke-width="10"/><path d="M324 286l38-20 7 10-40 34" fill="url(#rb-white)" stroke="#6ba6af" stroke-width="4"/><path d="M359 275l9 10" stroke="#b1fbff" stroke-width="12" stroke-linecap="round"/><path d="M291 302q12-12 20 1-9 16-20 0Z" fill="#ecfff3"/></g>
+          </svg>
+        </div>
+        <svg class="water-jet" id="robotWater" viewBox="0 0 210 255" aria-hidden="true" preserveAspectRatio="none"><defs><linearGradient id="water-gradient" x1="0" x2=".7" y1="0" y2="1"><stop stop-color="#e7ffff"/><stop offset=".48" stop-color="#46d9ff"/><stop offset="1" stop-color="#0aa8ec"/></linearGradient></defs><path class="water-arc water-thick" d="M5 12 Q160 20 150 237"/><path class="water-arc water-white" d="M5 12 Q160 20 150 237"/><g class="water-drops"><circle cx="65" cy="32" r="5"/><circle cx="106" cy="79" r="6"/><circle cx="132" cy="132" r="4"/><circle cx="167" cy="183" r="6"/><circle cx="147" cy="224" r="7"/></g><g class="water-splash"><path d="M150 233q-34-30-38-4m38 4q33-36 44-5m-44 5q-14-45 4-55" fill="none" stroke="#7eefff" stroke-width="8" stroke-linecap="round"/><circle cx="128" cy="207" r="7"/><circle cx="183" cy="210" r="5"/><circle cx="160" cy="177" r="4"/></g></svg>
+        <div class="growth-rail" aria-label="Illustrated stages of tree growth"><div class="growth-stage" data-stage="4"><span>🍎</span><small>Lv.4</small><b>Fruitful</b></div><i>↑</i><div class="growth-stage" data-stage="3"><span>🌳</span><small>Lv.3</small><b>Growing</b></div><i>↑</i><div class="growth-stage" data-stage="2"><span>🌿</span><small>Lv.2</small><b>Sapling</b></div><i>↑</i><div class="growth-stage" data-stage="1"><span>🌰</span><small>Lv.1</small><b>Seed</b></div></div>
+        <div class="stage-actions"><button id="sceneRotate" type="button" title="Rotate tree" aria-label="Rotate tree">⟳</button><button id="sceneRain" type="button" title="Play robot watering scene and prepare an on-chain action" aria-label="Water selected tree">💧</button><small>Robot animation is a preview; watering counts only after an approved, confirmed transaction.</small></div>
+      </section>
+
+      <aside class="right-rail" id="missions">
+        <article class="glass-card missions-card"><div class="card-title"><span>🎯</span><h2>Missions / Tasks</h2></div><p class="card-sub">Real on-chain actions for verified Agent ID holders.</p>
+          <div class="mission-list">
+            <div class="mission-row"><span class="mission-emoji">🗓️</span><span class="mission-body"><b>Daily Check-in</b><small>Earn water & sunshine</small></span><span class="mission-gain">+10 XP</span><button id="missionCheckin" class="mission-button" type="button">GO</button></div>
+            <div class="mission-row"><span class="mission-emoji">🌱</span><span class="mission-body"><b>Plant Tree</b><small>Use 1 seed</small></span><span class="mission-gain">+15 XP</span><button id="missionPlant" class="mission-button" type="button">GO</button></div>
+            <div class="mission-row"><span class="mission-emoji">💧</span><span class="mission-body"><b>Water Tree</b><small>One care / UTC day</small></span><span class="mission-gain">+20 XP</span><button id="heroWater" class="mission-button" type="button">GO</button></div>
+            <div class="mission-row"><span class="mission-emoji">🧺</span><span class="mission-body"><b>Harvest</b><small>After 3 care sessions</small></span><span class="mission-gain">+50 XP</span><button id="heroHarvest" class="mission-button" type="button">GO</button></div>
+            <div class="mission-row"><span class="mission-emoji">🏅</span><span class="mission-body"><b>Mint Streak NFT</b><small>3 / 7 / 14 days</small></span><span class="mission-gain">NFT</span><button id="heroMint" class="mission-button" type="button">GO</button></div>
+          </div>
+          <p class="mission-footer">🪙 Each action spends BNB network gas. No platform fee.</p>
+          <span class="hidden" id="missionCheck" aria-hidden="true"></span><button class="hidden" id="nextDay" disabled hidden>Disabled</button>
+        </article>
+        <article class="glass-card tip-card"><div class="tip-icon">🤖</div><div><b>Your AI garden helper</b><p>Watch SproutBot walk in and water your tree. The animation never signs or sends transactions.</p></div><button type="button" id="robotReplay" title="Replay robot animation">↻</button></article>
+      </aside>
+    </section>
+
+    <section class="dashboard-grid" aria-label="Orchard statistics">
+      <article class="glass-card dashboard-card trees-summary"><div class="mini-head"><h2>🌳 My Trees <span class="count" id="treeCount">0</span></h2><a href="#trees" aria-label="Browse trees">↗</a></div><div id="ownedTrees" class="tree-list"><div class="empty-text">Verify your Agent ID to see your planted trees.</div></div><div class="card-bottom-row"><button id="cycleTree" type="button">↻ Next tree</button><button id="plantNow" type="button">＋ Plant</button></div></article>
+      <article class="glass-card dashboard-card progress-card"><div class="mini-head"><h2>🧺 Harvest Progress</h2><span>ON-CHAIN</span></div><div class="progress-big"><strong id="harvestPct">0%</strong><span>Tree care completed</span><span class="fruit-decor">🍎🍊</span></div><div class="progress-bar"><span id="harvestBar" style="width:0%"></span></div><div class="progress-meta"><span id="harvestCare">0 / 3 care sessions</span><b id="harvestStatus">Select a tree</b></div></article>
+      <article class="glass-card dashboard-card badges-summary"><div class="mini-head"><h2>🏅 NFT Badges</h2><a href="#badges">↗</a></div><div class="badge-big"><strong id="badgeCount">—</strong><span>/ 3 collected</span></div><div class="mini-badges" id="miniBadges"><span title="3-day NFT">🌱</span><span title="7-day NFT">🌳</span><span title="14-day NFT">🏆</span></div><p>Permanent soulbound streak badges on BNB Chain.</p></article>
+      <article class="glass-card dashboard-card community-card" id="community"><div class="mini-head"><h2>🏆 Community Pulse</h2><span>LIVE RPC</span></div><div class="community-grid"><div><small>Total check-ins</small><strong id="communityCheckins">—</strong></div><div><small>Total harvests</small><strong id="communityHarvests">—</strong></div></div><p>Verified global contract counters. A ranked leaderboard requires an on-chain event indexer.</p></article>
+      <article class="glass-card dashboard-card activity-card"><div class="mini-head"><h2>✨ Recent Activity</h2><span>THIS SESSION</span></div><div class="activity-items" id="activityFeed"><p>No confirmed transactions verified in this session.</p></div><p class="activity-disclaimer">Only verified transaction receipts are shown. No simulated activity.</p></article>
+    </section>
+
+
+    <section id="leaderboard" class="leaderboard-analytics glass-card" aria-label="Agent wallet leaderboard and daily website analytics">
+      <div class="section-heading analytics-head">
+        <div><span class="kicker">REAL BNB CHAIN EVENTS + WEBSITE ANALYTICS</span><h2>🏆 Agent Leaderboard & Orchard Pulse</h2><p>Rankings reflect indexed contract activity. Visits count anonymous browser sessions, not wallets or unique people.</p></div>
+        <span class="analytics-live" id="analyticsState">● Connect Analytics Worker</span>
+      </div>
+      <div class="analytics-kpis" aria-label="Global agent statistics">
+        <article class="metric-tile"><span>🤖</span><small>Active Agent ID wallets</small><strong id="metricWallets">—</strong></article>
+        <article class="metric-tile"><span>⚡</span><small>Game actions recorded</small><strong id="metricActions">—</strong></article>
+        <article class="metric-tile"><span>🏅</span><small>Badge NFTs minted</small><strong id="metricBadges">—</strong></article>
+        <article class="metric-tile"><span>👀</span><small>Page views today (UTC)</small><strong id="metricVisits">—</strong></article>
+        <article class="metric-tile"><span>🧭</span><small>Browser sessions today</small><strong id="metricSessions">—</strong></article>
+      </div>
+      <div class="analytics-columns">
+        <article class="stats-panel ranks-panel">
+          <div class="mini-head"><h3>🏆 Top Agent Wallets</h3><select id="rankSort" aria-label="Leaderboard sort"><option value="xp">By XP</option><option value="checkins">By Check-ins</option><option value="tends">By Watering</option><option value="plants">By Planted trees</option><option value="harvests">By Harvests</option><option value="badges">By NFTs</option><option value="bestStreak">By Best streak</option></select></div>
+          <div class="rank-table-wrap"><table class="rank-table"><thead><tr><th>Rank</th><th>Agent ID</th><th>XP</th><th>Check-ins</th><th>Care</th><th>NFT</th></tr></thead><tbody id="leaderboardRows"><tr><td colspan="6" class="rank-empty">No indexed data yet. Configure Cloudflare Worker + D1.</td></tr></tbody></table></div>
+          <div class="wallet-lookup"><label for="rankWallet">Inspect a public Agent ID / wallet</label><div><input id="rankWallet" placeholder="SignalX.ai or 0x… wallet address" autocomplete="off" spellcheck="false"/><button id="rankWalletBtn" type="button">View stats ↗</button></div><p id="walletRankResult" aria-live="polite">Read-only public on-chain activity.</p></div>
+        </article>
+        <article class="stats-panel visits-panel">
+          <div class="mini-head"><h3>📈 Website Activity</h3><span>LAST 7 DAYS · UTC</span></div>
+          <div id="visitChart" class="visit-chart" role="img" aria-label="7-day daily pageviews"><span class="chart-loading">Waiting for analytics backend…</span></div>
+          <div class="visit-summary"><span>📅 Today: <strong id="visitToday">—</strong> views</span><span>🧭 Sessions: <strong id="visitSessions">—</strong></span></div>
+          <p class="visit-disclaimer">Privacy-friendly approximate page views and browser sessions. No IP, wallet-login credentials, or private keys are stored. Automated traffic can affect counts.</p>
+        </article>
+      </div>
+      <p class="indexer-footnote" id="indexerStatus">Leaderboard appears when the event indexer is configured and has synchronized BNB Mainnet logs. No estimated or made-up wallet counts.</p>
+    </section>
+
+    <section class="detail-grid" aria-label="On-chain actions and wallet tools">
+      <article class="glass-card nursery" id="trees"><div class="section-heading"><div><span class="kicker">CHOOSE YOUR NEXT SEED</span><h2>🌿 My Orchard / Tree Nursery</h2><p>Each new tree costs 1 seed. Planting and watering consume network gas.</p></div></div>
+        <div class="tree-cards"><div class="tree-choice apple"><span class="tree-illustration">🍎</span><small>SPECIES 01</small><h3>Ruby Apple</h3><p>Fresh red fruit, grown with three days of care.</p><div class="tree-choice-bottom"><span>🌰 1 seed</span><button class="plant-btn" type="button" data-plant="0">Plant tree ↗</button></div></div><div class="tree-choice orange"><span class="tree-illustration">🍊</span><small>SPECIES 02</small><h3>Sun Orange</h3><p>A sun-soaked orchard favorite.</p><div class="tree-choice-bottom"><span>🌰 1 seed</span><button class="plant-btn" type="button" data-plant="1">Plant tree ↗</button></div></div><div class="tree-choice mango"><span class="tree-illustration">🥭</span><small>SPECIES 03</small><h3>Golden Mango</h3><p>Sweet, sunny and golden when harvested.</p><div class="tree-choice-bottom"><span>🌰 1 seed</span><button class="plant-btn" type="button" data-plant="2">Plant tree ↗</button></div></div></div>
+      </article>
+      <article class="glass-card harvest-basket"><div class="section-heading"><div><span class="kicker">YOUR FRUIT INVENTORY</span><h2>🧺 Harvest Basket</h2><p>Game inventory only — no tradable token or financial return.</p></div></div><div class="fruit-holdings"><div><span>🍎</span><strong id="appleCount">0</strong><small>Apples</small></div><div><span>🍊</span><strong id="orangeCount">0</strong><small>Oranges</small></div><div><span>🥭</span><strong id="mangoCount">0</strong><small>Mangoes</small></div></div><div class="xp-ribbon">✨ Your on-chain XP <strong id="xpValue">—</strong></div></article>
+    </section>
+    <section class="glass-card badge-collection" id="badges"><div class="section-heading"><div><span class="kicker">PROOF OF CONSISTENCY</span><h2>⭐ Soulbound Streak NFT Badges</h2><p>Build an active streak and mint an achievement. NFT mints cost BNB gas.</p></div><span class="tag">3 TIERS</span></div><div class="badge-grid"><article class="badge-tile" data-tier="1"><div class="badge-art bronze">🌱<small>3 DAYS</small></div><div><h3>First Roots</h3><p>3-day active streak</p><button class="mint-btn" data-mint="1">Unlock at 3 days ↗</button></div></article><article class="badge-tile" data-tier="2"><div class="badge-art silver">🌳<small>7 DAYS</small></div><div><h3>Steady Grower</h3><p>7-day active streak</p><button class="mint-btn" data-mint="2">Unlock at 7 days ↗</button></div></article><article class="badge-tile" data-tier="3"><div class="badge-art gold-art">🏆<small>14 DAYS</small></div><div><h3>Orchard Legend</h3><p>14-day active streak</p><button class="mint-btn" data-mint="3">Unlock at 14 days ↗</button></div></article></div></section>
+    <section class="glass-card mainnet-console" aria-label="Verify mainnet transaction"><div class="console-copy"><div><span class="kicker">BNB MAINNET · CHAIN 56</span><h2>🔎 Mainnet Transaction Explorer</h2><p>Copy an action prompt into the official Binance Agentic Wallet. After separately approving the transaction, paste the hash below to verify it.</p><p id="syncStatus" class="sync-status" role="status">Enter a public Agent ID address to load real blockchain state.</p></div><div class="console-buttons"><button id="openWalletFromConsole" type="button" class="btn btn-outline">Verify Agent ID ↗</button><button id="walletPromptAgain" type="button" class="btn btn-outline">Wallet setup ↗</button></div></div><div class="receipt-console"><label for="txHashInput">Verify transaction hash</label><div class="receipt-input"><input id="txHashInput" placeholder="0x… transaction hash" spellcheck="false" autocomplete="off"><button id="verifyTxBtn" type="button">Verify TX ↗</button></div><p id="txResult" aria-live="polite">A copied prompt is not a completed transaction. Only confirmed BNB Chain receipts count.</p><small id="globalStats">Global counters are read directly from the deployed contract.</small></div></section>
+    <section class="how-strip" id="how"><div><span>🌱</span><strong>1. Verify Agent ID</strong><small>Official wallet flow only</small></div><div><span>🗓️</span><strong>2. Check in daily</strong><small>One per UTC day</small></div><div><span>🤖</span><strong>3. Grow your trees</strong><small>On-chain care and harvest</small></div><div><span>🏅</span><strong>4. Mint achievements</strong><small>3 / 7 / 14-day streak</small></div></section>
+    <footer><span>🌳 Agent Orchard · BNB Smart Chain Mainnet · Independent, unaudited community project</span><span>On-chain actions require explicit wallet confirmation and BNB network gas. No financial rewards promised.</span></footer>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog class="wallet-dialog" id="walletDialog"><form method="dialog"><button class="close" aria-label="Close dialog">✕</button></form><div class="modal-kicker">🤖 OFFICIAL BINANCE AGENTIC WALLET</div><h2>Connect with Binance Agentic Wallet</h2><p>Agent Orchard never signs you in or stores wallet credentials. Read our on-site skill.md using Binance AI Pro to prepare farming tasks. Authentication stays within official Binance tools; this website only syncs your public on-chain address.</p><div class="wallet-steps"><span>1 · Official sign-in</span><span>2 · Verify Agent ID</span><span>3 · Preview actions</span></div><label for="agentAddress">Your public Agent ID wallet address</label><div class="address-row"><input id="agentAddress" placeholder="0x… wallet address" autocomplete="off" spellcheck="false"><button id="verifyAgent" type="button">Verify</button></div><p class="verify-result" id="verifyResult">Address not set. This is not a wallet login session.</p><p class="skill-tip">📖 Agent skill: <a href="/skill.md" target="_blank" rel="noopener noreferrer">agentorchard.pages.dev/skill.md ↗</a></p><label for="promptBox">Official Binance Agentic Wallet login prompt</label><textarea id="promptBox" readonly spellcheck="false"></textarea><div class="modal-actions"><button id="copyPrompt" class="btn btn-green" type="button">Copy Login Prompt</button><button id="copySkillTask" class="btn btn-outline" type="button">Copy Farming Skill Prompt</button><button id="connectedSync" class="btn btn-gold" type="button">I've Connected — Sync My Garden</button><a href="https://web3.binance.com/en/dev-docs/products/agentic-wallet/install" target="_blank" rel="noopener noreferrer">Official wallet guide ↗</a></div><p class="modal-warning">Paste only a PUBLIC wallet address above after connecting in Binance AI Pro. Reading skill.md does not create a website login session. Never enter a seed phrase, private key, pairing code or API key here. Custom calls may require Developer Mode; every transaction incurs BNB gas.</p></dialog>
+  <dialog class="wallet-dialog action-dialog" id="actionDialog"><form method="dialog"><button class="close" aria-label="Close dialog">✕</button></form><div class="modal-kicker">🟡 MAINNET · UNSIGNED TRANSACTION REQUEST</div><h2 id="actionTitle">Prepare on-chain action</h2><p id="actionDesc">Copy into the official wallet. No transaction is sent by this website.</p><pre id="actionData" class="call-data"></pre><p id="gasEstimate" class="gas-quote" aria-live="polite">Gas estimate available after verifying your public Agent ID wallet.</p><label for="actionPrompt">Official Binance Agentic Wallet contract-call prompt</label><textarea id="actionPrompt" readonly spellcheck="false"></textarea><div class="modal-actions"><button class="btn btn-green" id="copyAction" type="button">Copy action prompt ↗</button><button class="btn btn-outline" id="closeAction" type="button">Close</button></div><p class="modal-warning">You must separately approve each transaction in Binance official wallet. Preview never means approval. BNB gas is paid by your wallet.</p></dialog>
+</body>
+</html>

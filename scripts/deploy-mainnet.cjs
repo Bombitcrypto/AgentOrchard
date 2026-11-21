@@ -1,0 +1,27 @@
+const hre=require('hardhat');
+const fs=require('fs');
+(async()=>{
+  if(hre.network.name!=='bscMainnet') throw Error('Mainnet only. Explicitly select --network bscMainnet');
+  const network=await hre.ethers.provider.getNetwork();
+  if(network.chainId!==56n) throw Error('Wrong chain: '+network.chainId);
+  const signer=(await hre.ethers.getSigners())[0];
+  if(!signer) throw Error('Missing MAINNET_DEPLOYER_PRIVATE_KEY local environment variable');
+  const agentId='0x60b9262456de011f7d15a54cdd8c48baaa8b022f';
+  if((await hre.ethers.provider.getCode(agentId))==='0x') throw Error('Agent ID registry not deployed');
+  const factory=await hre.ethers.getContractFactory('AgentOrchard');
+  const tx=await factory.getDeployTransaction();
+  const estimate=await hre.ethers.provider.estimateGas({from: signer.address,data:tx.data});
+  const price=(await hre.ethers.provider.getFeeData()).gasPrice;
+  if(!price)throw Error('Gas price unavailable');
+  const predicted=estimate*price;
+  const maximum=hre.ethers.parseEther(process.env.MAX_DEPLOY_GAS_BNB||'0.03');
+  const balance=await hre.ethers.provider.getBalance(signer.address);
+  console.log('Network:',network.chainId.toString(),'Deployer:',signer.address,'Estimated gas BNB:',hre.ethers.formatEther(predicted));
+  if(predicted>maximum)throw Error('Projected deployment gas exceeds safety cap');
+  if(balance<predicted*12n/10n)throw Error('Insufficient BNB plus 20% reserve');
+  if(process.env.CONFIRM_MAINNET_DEPLOY!=='YES_I_APPROVE_MAINNET_DEPLOY')throw Error('Read code and set CONFIRM_MAINNET_DEPLOY=YES_I_APPROVE_MAINNET_DEPLOY to deploy');
+  const contract=await factory.deploy(); await contract.waitForDeployment();
+  const address=await contract.getAddress();
+  fs.writeFileSync('deployment-mainnet.json', JSON.stringify({address,chainId:56,agentId,txHash:contract.deploymentTransaction()?.hash,at:new Date().toISOString()},null,2)+'\n');
+  console.log('CONTRACT:',address,'Next: verify source, pin NFT metadata, update site/config.js');
+})().catch(e=>{console.error(e.message);process.exit(1);});

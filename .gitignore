@@ -1,0 +1,25 @@
+# Never commit wallet, infrastructure, or authorization secrets
+.env
+.env.*
+!.env.example
+**/.dev.vars
+**/.dev.vars.*
+**/wrangler.toml
+**/.wrangler/
+**/node_modules/
+**/.DS_Store
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*secrets*.json
+# Local builds and deployment info
+/dist/
+/artifacts/
+/cache/
+/coverage/
+/deployment-mainnet.json
+/evidence/*.json
+/evidence/*.csv
+/.cache/
